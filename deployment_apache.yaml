@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-deployment
+  namespace: kube-system
+  labels:
+    app: webserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webserver
+  template:
+    metadata:
+      labels:
+        app: webserver
+    spec:
+      containers:
+      - name: frontend
+        image: httpd
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: log
+          mountPath: /var/log/apache2
+      volumes:
+      - name: log
+        emptyDir: {} 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache-service
+  namespace: kube-system
+  labels:
+    app: webserver
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    nodePort: 30001
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: webserver
