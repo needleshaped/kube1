@@ -6,7 +6,7 @@ metadata:
   labels:
     app: webserver
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: webserver
@@ -23,6 +23,12 @@ spec:
         volumeMounts:
         - name: log
           mountPath: /var/log/apache2
+      - name: exporter
+        image: bitnami/apache-exporter
+        ports:
+        - containerPort: 9117
+        # args:
+        #   - --log.level="info"
       volumes:
       - name: log
         emptyDir: {} 
@@ -41,5 +47,21 @@ spec:
     nodePort: 30001
     protocol: TCP
     targetPort: 80
+  selector:
+    app: webserver
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache-exporter-service
+  namespace: kube-system
+  labels:
+    app: webserver
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9117
+    protocol: TCP
+    targetPort: 9117
   selector:
     app: webserver
