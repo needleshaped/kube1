@@ -23,15 +23,20 @@ spec:
         volumeMounts:
         - name: log
           mountPath: /var/log/apache2
+        - name: apache-httpdconf
+          mountPath: /usr/local/apache2/conf/httpd.conf
+          subPath: httpd.conf
       - name: exporter
         image: bitnami/apache-exporter
         ports:
         - containerPort: 9117
-        # args:
-        #   - --log.level="info"
       volumes:
       - name: log
         emptyDir: {} 
+      - name: apache-httpdconf
+        configMap:
+            defaultMode: 420
+            name: apache-httpdconf
 ---
 apiVersion: v1
 kind: Service
